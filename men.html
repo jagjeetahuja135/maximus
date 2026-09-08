@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maximus Studio | Men</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap');
+    :root { --ink:#20201d; --muted:#6c6a63; --paper:#f5f1e9; --cream:#ebe4d6; --coral:#df674f; --line:rgba(32,32,29,.16); --serif:'Playfair Display',Georgia,serif; --sans:'DM Sans',Arial,sans-serif; }
+    * { box-sizing:border-box; } body { margin:0; color:var(--ink); background:var(--paper); font-family:var(--sans); } a { color:inherit; text-decoration:none; }
+    .announcement { padding:10px 24px; background:var(--ink); color:var(--paper); text-align:center; font-size:11px; letter-spacing:.16em; text-transform:uppercase; }
+    header { border-bottom:1px solid var(--line); } .nav { max-width:1240px; margin:auto; padding:23px 32px; display:flex; justify-content:space-between; align-items:center; gap:24px; } .logo { font-size:22px; font-weight:700; letter-spacing:-.06em; } .logo span { color:var(--coral); } .nav-links { display:flex; gap:30px; color:var(--muted); font-size:13px; } .nav-links a:hover,.back:hover { color:var(--coral); }
+    .intro { max-width:1240px; margin:auto; padding:76px 32px 48px; display:flex; justify-content:space-between; align-items:end; gap:35px; } .eyebrow { color:var(--coral); font-size:11px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; } h1 { margin:14px 0 0; font:500 clamp(55px,8vw,98px)/.9 var(--serif); letter-spacing:-.07em; } .intro p { max-width:330px; color:var(--muted); font-size:14px; line-height:1.7; margin:0; }
+    .toolbar { max-width:1240px; margin:auto; padding:18px 32px; border-top:1px solid var(--line); border-bottom:1px solid var(--line); display:flex; justify-content:space-between; color:var(--muted); font-size:12px; } .back { color:var(--ink); }
+    .products { max-width:1240px; margin:auto; padding:48px 32px 100px; display:grid; grid-template-columns:repeat(3,1fr); gap:48px 18px; } .product-image { aspect-ratio:3/4; overflow:hidden; background:var(--cream); position:relative; } .product-image img { display:block; width:100%; height:100%; object-fit:cover; transition:transform .5s ease; } .product:hover img { transform:scale(1.04); } .tag { position:absolute; top:12px; left:12px; background:var(--paper); padding:6px 9px; font-size:10px; letter-spacing:.1em; text-transform:uppercase; } .product-info { display:flex; justify-content:space-between; gap:15px; padding-top:14px; font-size:13px; } .product-info p { color:var(--muted); font-size:12px; margin:5px 0 0; } .price { white-space:nowrap; }
+    footer { padding:28px 32px; border-top:1px solid var(--line); color:var(--muted); font-size:11px; text-align:center; }
+    @media(max-width:700px) { .nav { padding:18px 20px; } .nav-links { gap:12px; font-size:11px; } .intro { display:block; padding:55px 20px 38px; } .intro p { margin-top:28px; } .toolbar { padding:16px 20px; } .products { padding:35px 20px 70px; grid-template-columns:repeat(2,1fr); gap:32px 12px; } .product-info { display:block; line-height:1.3; } .price { display:block; margin-top:6px; } footer { padding:25px 20px; } }
+  </style>
+</head>
+<body>
+  <div class="announcement">Complimentary shipping on orders over $150</div>
+  <header><nav class="nav"><a class="logo" href="index.html">MAXIMUS<span>.</span></a><div class="nav-links"><a href="men.html">Men</a><a href="women.html">Women</a><a href="kids.html">Kids</a><a class="back" href="index.html">Home ↗</a></div></nav></header>
+  <main>
+    <section class="intro"><div><div class="eyebrow">The everyday uniform</div><h1>Men</h1></div><p>Easy layers and considered essentials with room to move. Designed for weekdays, weekends, and everything between.</p></section>
+    <div class="toolbar"><a class="back" href="index.html">← Back to Maximus</a><span>16 pieces</span><span>Sort: Featured ↓</span></div>
+    <section class="products">
+      <a class="product" href="#"><div class="product-image"><img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=800&q=85" alt="Man wearing a tailored neutral outfit"><span class="tag">New</span></div><div class="product-info"><div>Field overshirt<p>Washed olive cotton</p></div><span class="price">$148</span></div></a>
+      <a class="product" href="#"><div class="product-image"><img src="https://images.unsplash.com/photo-1516826957135-700dedea698c?auto=format&fit=crop&w=800&q=85" alt="Man in a cream shirt"></div><div class="product-info"><div>Everyday shirt<p>Soft white poplin</p></div><span class="price">$96</span></div></a>
+      <a class="product" href="#"><div class="product-image"><img src="https://images.unsplash.com/photo-1555069519-127aadedf1ee?auto=format&fit=crop&w=800&q=85" alt="Man wearing a dark jacket"><span class="tag">Bestseller</span></div><div class="product-info"><div>Studio jacket<p>Charcoal brushed wool</p></div><span class="price">$228</span></div></a>
+      <a class="product" href="#"><div class="product-image"><img src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=800&q=85" alt="Man wearing a relaxed knit sweater"></div><div class="product-info"><div>Alba knit<p>Oatmeal merino</p></div><span class="price">$168</span></div></a>
+      <a class="product" href="#"><div class="product-image"><img src="https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?auto=format&fit=crop&w=800&q=85" alt="Man in a casual black outfit"></div><div class="product-info"><div>Drawstring trouser<p>Ink cotton twill</p></div><span class="price">$132</span></div></a>
+      <a class="product" href="#"><div class="product-image"><img src="https://images.unsplash.com/photo-1488161628813-04466f872be2?auto=format&fit=crop&w=800&q=85" alt="Man wearing a warm coat"></div><div class="product-info"><div>Longline coat<p>Warm stone wool</p></div><span class="price">$294</span></div></a>
+      <a class="product" href="#"><div class="product-image"><img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=800&q=85" alt="Man wearing a casual blue shirt"><span class="tag">New</span></div><div class="product-info"><div>Harbor overshirt<p>Faded blue cotton</p></div><span class="price">$118</span></div></a>
+      <a class="product" href="#"><div class="product-image"><img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=85" alt="Man in a lightweight jacket"></div><div class="product-info"><div>Transit jacket<p>Sand ripstop</p></div><span class="price">$176</span></div></a>
+      <a class="product" href="#"><div class="product-image"><img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=85" alt="Man wearing a white t-shirt"></div><div class="product-info"><div>Essential tee<p>Heavyweight ivory jersey</p></div><span class="price">$54</span></div></a>
+      <a class="product" href="#"><div class="product-image"><img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=85" alt="Man wearing dark trousers"></div><div class="product-info"><div>Relaxed trouser<p>Deep navy wool</p></div><span class="price">$142</span></div></a>
+      <a class="product" href="#"><div class="product-image"><img src="https://images.unsplash.com/photo-1551489186-cf8726f514f8?auto=format&fit=crop&w=800&q=85" alt="Man wearing a textured sweater"><span class="tag">Bestseller</span></div><div class="product-info"><div>Ribbed crew<p>Forest green knit</p></div><span class="price">$126</span></div></a>
+      <a class="product" href="#"><div class="product-image"><img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=85" alt="Man wearing a leather jacket"></div><div class="product-info"><div>Rider jacket<p>Vegetable tan leather</p></div><span class="price">$318</span></div></a>
+      <a class="product" href="#"><div class="product-image"><img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=800&q=85" alt="Man wearing a relaxed shirt"></div><div class="product-info"><div>Camp collar shirt<p>Washed terracotta linen</p></div><span class="price">$108</span></div></a>
+      <a class="product" href="#"><div class="product-image"><img src="https://images.unsplash.com/photo-1483721310020-03333e577078?auto=format&fit=crop&w=800&q=85" alt="Man wearing outdoor layers"></div><div class="product-info"><div>Summit fleece<p>Heather grey polar</p></div><span class="price">$138</span></div></a>
+      <a class="product" href="#"><div class="product-image"><img src="https://images.unsplash.com/photo-1610652492500-ded49ceeb378?auto=format&fit=crop&w=800&q=85" alt="Man wearing a smart casual outfit"></div><div class="product-info"><div>City cardigan<p>Black cotton cashmere</p></div><span class="price">$154</span></div></a>
+    </section>
+  </main>
+  <footer>© 2024 Maximus Studio. Made thoughtfully.</footer>
+  <script src="cart.js"></script>
+</body>
+</html>
