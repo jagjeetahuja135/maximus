@@ -46,3 +46,26 @@ on conflict (id) do update set
   image_url = excluded.image_url,
   category = excluded.category,
   is_active = true;
+
+-- Add 50 more catalog items to every storefront category.
+-- This block is safe to run more than once because IDs are deterministic.
+insert into public.products (id, name, description, price, image_url, category)
+select
+  format('generated-%s-%s', category_name, item_number),
+  format('%s essential %s', initcap(category_name), lpad(item_number::text, 2, '0')),
+  format('Everyday %s piece', category_name),
+  (64 + ((item_number * 17 + length(category_name) * 11) % 240))::numeric(10, 2),
+  case category_name
+    when 'accessories' then 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=85'
+    when 'dresses' then 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=700&q=85'
+    when 'kids' then 'https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?auto=format&fit=crop&w=800&q=85'
+    when 'knitwear' then 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&w=700&q=85'
+    when 'men' then 'https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=800&q=85'
+    when 'outerwear' then 'https://images.unsplash.com/photo-1488161628813-04466f872be2?auto=format&fit=crop&w=700&q=85'
+    when 'tops' then 'https://images.unsplash.com/photo-1548883354-7622d03aca27?auto=format&fit=crop&w=700&q=85'
+    when 'women' then 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=800&q=85'
+  end,
+  category_name
+from unnest(array['accessories', 'dresses', 'kids', 'knitwear', 'men', 'outerwear', 'tops', 'women']) as categories(category_name)
+cross join generate_series(1, 50) as numbers(item_number)
+on conflict (id) do nothing;
