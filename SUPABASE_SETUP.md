@@ -4,7 +4,7 @@ Supabase automatically creates the PostgreSQL database when you create a project
 
 1. Create a Supabase project at https://supabase.com.
 2. In the Supabase dashboard, open **SQL Editor**, paste `supabase-schema.sql`, and run it. This creates the tables inside the Supabase database.
-3. Paste `supabase-seed.sql` into a new SQL Editor query and run it. This inserts the first real catalog rows into `products`.
+3. Paste `supabase-seed.sql` into a new SQL Editor query and run it. This inserts the catalog rows into `products`.
 4. Open **Project Settings > API Keys** and copy the **Project URL** and **Publishable key**. In some Supabase projects, the older equivalent is called the `anon` key.
 5. Put those values in `supabase-config.js`:
 
@@ -23,7 +23,7 @@ For a local or self-hosted PostgreSQL server where you need to create the databa
 psql -U postgres -f postgresql-create-database.sql
 ```
 
-The shared `cart.js` script reads active products from Supabase and sends a row to `orders` plus line items to `order_items` when checkout is used. If the product request fails or the table is empty, the existing static catalog remains visible.
+The shared `cart.js` script reads active products from Supabase and sends a row to `orders` plus line items to `order_items` when checkout is used. If a Supabase product request succeeds but that category has no rows, the page shows an empty-collection message instead of silently showing static prices. If the request fails, the existing markup remains available as a connection-error fallback.
 
 ## Deploy on Vercel
 

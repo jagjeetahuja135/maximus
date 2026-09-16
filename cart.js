@@ -1,9 +1,15 @@
 (function () {
   const storageKey = 'vela-cart';
   const pageName = document.title.split('|')[1]?.trim().toLowerCase() || 'shop';
-  const supabase = window.MAXIMUS_SUPABASE || {};
-  const supabaseUrl = (supabase.url || '').replace(/\/+$/, '').replace(/\/rest\/v1$/, '');
-  const supabaseKey = supabase.publishableKey || supabase.anonKey;
+  let supabase = window.MAXIMUS_SUPABASE || {};
+  let supabaseUrl = '';
+  let supabaseKey = '';
+
+  function refreshSupabaseConfig() {
+    supabase = window.MAXIMUS_SUPABASE || {};
+    supabaseUrl = (supabase.url || '').replace(/\/+$/, '').replace(/\/rest\/v1$/, '');
+    supabaseKey = supabase.publishableKey || supabase.anonKey;
+  }
 
   function isSupabaseConfigured() {
     return supabaseUrl && !supabaseUrl.includes('YOUR_PROJECT_REF') && supabaseKey && !supabaseKey.includes('YOUR_PUBLISHABLE');
@@ -65,7 +71,13 @@
     const category = productCategory();
     if (category) params.set('category', `eq.${category}`);
     const products = await supabaseRequest(`products?${params.toString()}`);
-    if (!products?.length) return;
+    if (!products) return;
+    if (!products.length) {
+      document.querySelectorAll('.products').forEach((container) => {
+        container.innerHTML = '<p class="catalog-status">No products are available in this collection yet.</p>';
+      });
+      return;
+    }
     const productMarkup = products.map((product) => `<a class="product" href="#newsletter"><div class="product-image"><img src="${escapeHtml(product.image_url)}" alt="${escapeHtml(product.name)}"></div><div class="product-info"><div>${escapeHtml(product.name)}<p>${escapeHtml(product.description)}</p></div><span class="price">$${Number(product.price).toFixed(2)}</span></div></a>`).join('');
     document.querySelectorAll('.products').forEach((container) => { container.innerHTML = productMarkup; });
   }
@@ -251,6 +263,7 @@
   style.textContent = `.maximus-loader{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:var(--paper,#f5f1e9);opacity:1;transition:opacity .45s ease;pointer-events:auto}.maximus-loader.is-ready{opacity:0;pointer-events:none}.loader-mark{position:relative;display:grid;justify-items:center;gap:24px}.loader-mark img{width:260px;height:60px;object-fit:contain}.loader-mark span{display:block;width:34px;height:34px;border:2px solid rgba(32,32,29,.2);border-top-color:var(--coral,#df674f);border-radius:50%;animation:maximus-spin .8s linear infinite}@keyframes maximus-spin{to{transform:rotate(360deg)}}.logo.image-logo{display:block;width:380px;height:86px}.logo.image-logo img{display:block;width:100%;height:100%;object-fit:contain;object-position:left center}.nav-links a{font-size:17px;font-weight:700}.bag::after{content:attr(data-count)}.cart-nav-link{color:var(--muted);font-size:17px;font-weight:700}.cart-nav-link:hover{color:var(--coral)}.add-cart{display:block;margin-top:12px;border:0;border-bottom:1px solid var(--ink);background:transparent;padding:0 0 5px;cursor:pointer;font:inherit;font-size:11px;color:var(--ink)}.add-cart:hover{color:var(--coral);border-color:var(--coral)}.cart-notice{position:fixed;right:22px;bottom:22px;z-index:10;background:var(--ink);color:var(--paper);padding:14px 18px;font-size:12px;transform:translateY(120%);transition:transform .25s ease}.cart-notice.is-visible{transform:translateY(0)}@media(max-width:700px){.loader-mark img{width:210px;height:49px}.logo.image-logo{width:280px;height:67px}.nav-links a,.cart-nav-link{font-size:13px}.cart-notice{right:15px;bottom:15px;left:15px;text-align:center}}`;
   document.head.appendChild(style);
   async function initialize() {
+    refreshSupabaseConfig();
     addLoadingIndicator();
     try {
       await loadProducts();
@@ -264,5 +277,13 @@
     renderCartPage();
   }
 
-  initialize();
+  if (!isSupabaseConfigured()) {
+    const configScript = document.createElement('script');
+    configScript.src = 'supabase-config.js';
+    configScript.onload = initialize;
+    configScript.onerror = initialize;
+    document.head.appendChild(configScript);
+  } else {
+    initialize();
+  }
 })();
