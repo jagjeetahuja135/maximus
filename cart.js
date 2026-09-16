@@ -1,6 +1,49 @@
 (function () {
   const storageKey = 'vela-cart';
   const pageName = document.title.split('|')[1]?.trim().toLowerCase() || 'shop';
+  const supabase = window.MAXIMUS_SUPABASE || {};
+  const supabaseUrl = (supabase.url || '').replace(/\/+$/, '').replace(/\/rest\/v1$/, '');
+  const supabaseKey = supabase.publishableKey || supabase.anonKey;
+
+  function isSupabaseConfigured() {
+    return supabaseUrl && !supabaseUrl.includes('YOUR_PROJECT_REF') && supabaseKey && !supabaseKey.includes('YOUR_PUBLISHABLE');
+  }
+
+  async function supabaseRequest(path, options = {}) {
+    if (!isSupabaseConfigured()) return null;
+    const response = await fetch(`${supabaseUrl}/rest/v1/${path}`, {
+      ...options,
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+        ...(options.headers || {})
+      }
+    });
+    if (!response.ok) throw new Error(`Supabase request failed: ${response.status}`);
+    return response.status === 204 ? null : response.json();
+  }
+
+  async function placeOrder(cart) {
+    const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    const orders = await supabaseRequest('orders', {
+      method: 'POST',
+      headers: { Prefer: 'return=representation' },
+      body: JSON.stringify({ status: 'placed', subtotal: Number(subtotal.toFixed(2)) })
+    });
+    if (!orders?.[0]?.id) throw new Error('Supabase did not return an order id');
+    await supabaseRequest('order_items', {
+      method: 'POST',
+      body: JSON.stringify(cart.map((item) => ({
+        order_id: orders[0].id,
+        product_id: item.id,
+        product_name: item.name,
+        unit_price: item.price,
+        quantity: item.quantity
+      })))
+    });
+    return orders[0].id;
+  }
 
   function addLoadingIndicator() {
     const loader = document.createElement('div');
@@ -132,7 +175,7 @@
   }
 
   function bindCartActions() {
-    document.addEventListener('click', (event) => {
+    document.addEventListener('click', async (event) => {
       const addButton = event.target.closest('.add-cart');
       if (addButton) {
         event.preventDefault();
@@ -157,12 +200,24 @@
         return;
       }
       if (event.target.closest('[data-checkout]')) {
-        saveCart([]);
-        const container = document.querySelector('[data-cart-page]');
-        if (container) {
-          container.innerHTML = '<div class="cart-empty"><div class="eyebrow">Order confirmed</div><h2>Order placed.</h2><p>Thank you for shopping with Maximus. Your order is on its way to becoming something you will reach for every day.</p><a class="cart-button" href="index.html#collection">Continue shopping <span>↗</span></a></div>';
+        const checkoutButton = event.target.closest('[data-checkout]');
+        const cart = readCart();
+        checkoutButton.disabled = true;
+        checkoutButton.setAttribute('aria-busy', 'true');
+        try {
+          if (isSupabaseConfigured()) await placeOrder(cart);
+          saveCart([]);
+          const container = document.querySelector('[data-cart-page]');
+          if (container) {
+            container.innerHTML = '<div class="cart-empty"><div class="eyebrow">Order confirmed</div><h2>Order placed.</h2><p>Thank you for shopping with Maximus. Your order is on its way to becoming something you will reach for every day.</p><a class="cart-button" href="index.html#collection">Continue shopping <span>↗</span></a></div>';
+          }
+          showNotice('Your order has been placed successfully');
+        } catch (error) {
+          checkoutButton.disabled = false;
+          checkoutButton.removeAttribute('aria-busy');
+          showNotice('We could not place your order. Please try again.');
+          console.error(error);
         }
-        showNotice('Your order has been placed successfully');
       }
     });
   }
