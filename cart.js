@@ -78,8 +78,12 @@
       });
       return;
     }
-    const productMarkup = products.map((product) => `<a class="product" href="#newsletter"><div class="product-image"><img src="${escapeHtml(product.image_url)}" alt="${escapeHtml(product.name)}"></div><div class="product-info"><div>${escapeHtml(product.name)}<p>${escapeHtml(product.description)}</p></div><span class="price">$${Number(product.price).toFixed(2)}</span></div></a>`).join('');
     document.querySelectorAll('.products').forEach((container) => { container.innerHTML = productMarkup; });
+    document.querySelectorAll('.toolbar span').forEach((span) => {
+      if (span.textContent.includes('pieces') || span.textContent.includes('piece')) {
+        span.textContent = `${products.length} piece${products.length === 1 ? '' : 's'}`;
+      }
+    });
   }
 
   function addLoadingIndicator() {

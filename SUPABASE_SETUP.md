@@ -4,7 +4,7 @@ Supabase automatically creates the PostgreSQL database when you create a project
 
 1. Create a Supabase project at https://supabase.com.
 2. In the Supabase dashboard, open **SQL Editor**, paste `supabase-schema.sql`, and run it. This creates the tables inside the Supabase database.
-3. Paste `supabase-seed.sql` into a new SQL Editor query and run it. This inserts the catalog rows plus 50 additional items per category into `products`. The generated IDs make the script safe to run again.
+3. Paste `supabase-seed.sql` into a new SQL Editor query and run it. This cleans out any previous generic rows and inserts 7 curated, high-quality items for each product category with proper images, descriptions, and pricing.
 4. Open **Project Settings > API Keys** and copy the **Project URL** and **Publishable key**. In some Supabase projects, the older equivalent is called the `anon` key.
 5. Put those values in `supabase-config.js`:
 
