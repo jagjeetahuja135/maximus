@@ -26,29 +26,46 @@
         ...(options.headers || {})
       }
     });
-    if (!response.ok) throw new Error(`Supabase request failed: ${response.status}`);
-    return response.status === 204 ? null : response.json();
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '');
+      throw new Error(`Supabase request failed: ${response.status} ${errorText}`);
+    }
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
   }
 
   async function placeOrder(cart) {
     const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-    const orders = await supabaseRequest('orders', {
+    const orderId = (typeof crypto !== 'undefined' && crypto.randomUUID)
+      ? crypto.randomUUID()
+      : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+          const r = (Math.random() * 16) | 0;
+          return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+        });
+
+    await supabaseRequest('orders', {
       method: 'POST',
-      headers: { Prefer: 'return=representation' },
-      body: JSON.stringify({ status: 'placed', subtotal: Number(subtotal.toFixed(2)) })
+      headers: { Prefer: 'return=minimal' },
+      body: JSON.stringify({
+        id: orderId,
+        status: 'placed',
+        subtotal: Number(subtotal.toFixed(2))
+      })
     });
-    if (!orders?.[0]?.id) throw new Error('Supabase did not return an order id');
+
     await supabaseRequest('order_items', {
       method: 'POST',
+      headers: { Prefer: 'return=minimal' },
       body: JSON.stringify(cart.map((item) => ({
-        order_id: orders[0].id,
+        order_id: orderId,
         product_id: item.id,
         product_name: item.name,
         unit_price: item.price,
         quantity: item.quantity
       })))
     });
-    return orders[0].id;
+
+    return orderId;
   }
 
   function escapeHtml(value) {
