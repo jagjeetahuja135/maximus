@@ -61,27 +61,84 @@
     return ['men', 'women', 'kids', 'outerwear', 'knitwear', 'dresses', 'tops', 'accessories'].includes(pageName) ? pageName : '';
   }
 
+  function buildProductMarkup(products, isIndex = false) {
+    return products.map((item, index) => {
+      const isBestseller = index === 0;
+      const isNew = index === 1;
+      const badgeClass = isIndex ? 'product-label tag' : 'tag';
+      const badge = isBestseller
+        ? `<span class="${badgeClass}">Bestseller</span>`
+        : (isNew ? `<span class="${badgeClass}">New</span>` : '');
+      const priceNum = Number(item.price);
+      const priceFormatted = Number.isInteger(priceNum)
+        ? `$${priceNum}`
+        : `$${priceNum.toFixed(2)}`;
+
+      const productPayload = escapeHtml(JSON.stringify({
+        id: item.id,
+        name: item.name,
+        description: item.description || '',
+        price: Number(item.price),
+        image: item.image_url
+      }));
+
+      return `
+        <article class="product" data-product-id="${escapeHtml(item.id)}">
+          <div class="product-image">
+            <img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.name)}" loading="lazy">
+            ${badge}
+          </div>
+          <div class="product-info">
+            <div>${escapeHtml(item.name)}<p>${escapeHtml(item.description || '')}</p></div>
+            <span class="price">${priceFormatted}</span>
+            <button class="add-cart" type="button" data-product="${productPayload}">Add to bag</button>
+          </div>
+        </article>
+      `;
+    }).join('');
+  }
+
   async function loadProducts() {
     if (!isSupabaseConfigured()) return;
+    const category = productCategory();
+    const isIndex = !category && (pageName.includes('everyday') || pageName === 'shop' || window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/') || window.location.pathname === '');
+
     const params = new URLSearchParams({
       select: 'id,name,description,price,image_url,category',
       is_active: 'eq.true',
       order: 'created_at.desc'
     });
-    const category = productCategory();
-    if (category) params.set('category', `eq.${category}`);
+    if (category) {
+      params.set('category', `eq.${category}`);
+    }
     const products = await supabaseRequest(`products?${params.toString()}`);
     if (!products) return;
     if (!products.length) {
       document.querySelectorAll('.products').forEach((container) => {
-        container.innerHTML = '<p class="catalog-status">No products are available in this collection yet.</p>';
+        container.innerHTML = '<p class="catalog-status" style="grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 40px 0;">No products are available in this collection yet.</p>';
       });
       return;
     }
-    document.querySelectorAll('.products').forEach((container) => { container.innerHTML = productMarkup; });
+
+    let displayProducts = products;
+    if (isIndex) {
+      const categoriesOrder = ['knitwear', 'outerwear', 'dresses', 'tops', 'accessories', 'kids', 'men', 'women'];
+      const byCat = {};
+      products.forEach((p) => {
+        if (!byCat[p.category]) byCat[p.category] = p;
+      });
+      const curated = categoriesOrder.map((cat) => byCat[cat]).filter(Boolean);
+      displayProducts = curated.length >= 4 ? curated.slice(0, 8) : products.slice(0, 8);
+    }
+
+    const productMarkup = buildProductMarkup(displayProducts, isIndex);
+    document.querySelectorAll('.products').forEach((container) => {
+      container.innerHTML = productMarkup;
+    });
+
     document.querySelectorAll('.toolbar span').forEach((span) => {
-      if (span.textContent.includes('pieces') || span.textContent.includes('piece')) {
-        span.textContent = `${products.length} piece${products.length === 1 ? '' : 's'}`;
+      if (span.textContent.includes('piece') || span.textContent.includes('Loading') || span.classList.contains('pieces-count')) {
+        span.textContent = `${displayProducts.length} piece${displayProducts.length === 1 ? '' : 's'}`;
       }
     });
   }
@@ -161,11 +218,11 @@
       const priceText = info?.querySelector('.price')?.textContent.replace(/[^0-9.]/g, '') || '0';
       if (!image || !info || !name || card.querySelector('.add-cart')) return;
       const product = {
-        id: `${pageName}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${index}`,
-        name,
-        description,
-        price: Number(priceText),
-        image: image.src
+        id: card.dataset.productId || `${pageName}-${name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${index}`,
+        name: card.dataset.productName || name,
+        description: description,
+        price: Number(card.dataset.productPrice || priceText),
+        image: card.dataset.productImage || image.src
       };
       card.dataset.productId = product.id;
       const button = document.createElement('button');
@@ -281,13 +338,22 @@
     renderCartPage();
   }
 
-  if (!isSupabaseConfigured()) {
-    const configScript = document.createElement('script');
-    configScript.src = 'supabase-config.js';
-    configScript.onload = initialize;
-    configScript.onerror = initialize;
-    document.head.appendChild(configScript);
+  function start() {
+    refreshSupabaseConfig();
+    if (!isSupabaseConfigured()) {
+      const configScript = document.createElement('script');
+      configScript.src = 'supabase-config.js';
+      configScript.onload = () => { refreshSupabaseConfig(); initialize(); };
+      configScript.onerror = initialize;
+      document.head.appendChild(configScript);
+    } else {
+      initialize();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
   } else {
-    initialize();
+    start();
   }
 })();
